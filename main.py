@@ -1,9 +1,19 @@
-import flet as ft
 from datetime import datetime
+import flet as ft
 
-def main(page: ft.Page):
-    page.theme_mode = ft.ThemeMode.DARK
-    plain_text = ft.Text("Домашнее задание 2-3", size=20)
+def app(page: ft.Page):
+    page.title = "Домашнее задание 4"
+    
+    plain_text = ft.Text(value="Введите имя ниже")
+    history = []
+
+    def clear_history(e):
+        history.clear()
+        history_text.value = ""
+        page.update()
+
+    delete_button = ft.IconButton(icon=ft.Icons.DELETE, on_click=clear_history)
+    history_text = ft.Text()
 
     def change_theme(e):
         if page.theme_mode == ft.ThemeMode.DARK:
@@ -21,22 +31,34 @@ def main(page: ft.Page):
         date = datetime.now().strftime("%Y:%m:%d - %H:%M:%S")
 
         if txt:
+            history.append(txt)
+            history_text.value = "История имён: \n" + ", \n".join(history)
             plain_text.color = None
             plain_text.value = f"{date} - Привет, {txt}!"
         else:
             plain_text.value = "Введите правильное имя!"
             plain_text.color = ft.Colors.RED
-        
+
         page.update()
 
-    user_input = ft.TextField(label="Enter name", on_submit=change)
-    btn = ft.TextButton("Отправить", on_click=change)
+    def delete_last(e):
+        if history:
+            history.pop()
+            history_text.value = "История имён: \n" + ", \n".join(history)
+        else:
+            history_text.value = "История имён пуста"
 
+    btn = ft.TextButton("Отправить", on_click=change)
+    user_input = ft.TextField(label="Enter name", on_submit=change)
+    delete_last_button = ft.TextButton("Удалить последнее имя", on_click=delete_last)   
     page.add(
-        plain_text,
-        user_input,
-        btn,
-        icon_button
+        plain_text, 
+        user_input, 
+        btn, 
+        history_text, 
+        delete_last_button,
+        icon_button, 
+        delete_button
     )
 
-ft.app(target=main)
+ft.app(target=app)
